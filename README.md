@@ -116,14 +116,6 @@ Inspiré par des designs futuristes et cyberpunk.
 Licence
 MIT License. Voir LICENSE pour plus de détails.
 Donnez une étoile  si vous aimez cette horloge futuriste !
-```
-
-Personnalise :
-Remplace [jawed56] et [futuristic-clock] par tes infos GitHub (ex. : jawed56/futuristic-clock).
-
-Enregistre :
-Sauvegarde sous README.md dans futuristic-clock.
-
 
 "# futuristic-clock" 
 
