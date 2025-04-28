@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horloge Digitale Futuriste avec Particules Arc-en-Ciel 3D</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #0d0d2b;
+            font-family: 'Orbitron', sans-serif;
+            margin: 0;
+            overflow: hidden;
+            color: #fff;
+            position: relative;
+            transition: background 0.5s ease;
+        }
+        body.light-mode {
+            background: #e0e0e0;
+            color: #0d0d2b;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            background: rgba(10, 10, 30, 0.8);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(0, 255, 200, 0.3);
+            backdrop-filter: blur(10px);
+            z-index: 1;
+        }
+        body.light-mode .container {
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
+        }
+        .clock-container {
+            text-align: center;
+        }
+        #clock {
+            font-size: 90px;
+            font-weight: 700;
+            background: linear-gradient(90deg, #00ffcc, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0, 255, 204, 0.7), 0 0 30px rgba(255, 0, 255, 0.5);
+            animation: neonGlow 2s ease-in-out infinite;
+        }
+        body.light-mode #clock {
+            text-shadow: none;
+            color: #0d0d2b;
+        }
+        #date {
+            font-size: 20px;
+            color: #00ffcc;
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.7);
+            margin-top: 10px;
+        }
+        body.light-mode #date {
+            color: #0d0d2b;
+            text-shadow: none;
+        }
+        @keyframes neonGlow {
+            0%, 100% { text-shadow: 0 0 10px rgba(0, 255, 204, 0.7), 0 0 20px rgba(255, 0, 255, 0.5); }
+            50% { text-shadow: 0 0 20px rgba(0, 255, 204, 1), 0 0 40px rgba(255, 0, 255, 0.8); }
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        input, button, select {
+            padding: 12px 20px;
+            font-size: 16px;
+            font-family: 'Orbitron', sans-serif;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #1a1a40, #2a2a60);
+            color: #00ffcc;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+        }
+        body.light-mode input, body.light-mode button, body.light-mode select {
+            background: linear-gradient(45deg, #d0d0d0, #f0f0f0);
+            color: #0d0d2b;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        input[type="time"], input[type="number"] {
+            background: transparent;
+            border: 2px solid #00ffcc;
+            color: #00ffcc;
+            width: 120px;
+        }
+        body.light-mode input[type="time"], body.light-mode input[type="number"] {
+            border: 2px solid #0d0d2b;
+            color: #0d0d2b;
+        }
+        input[type="file"] {
+            padding: 10px;
+        }
+        button:hover, select:hover {
+            background: linear-gradient(45deg, #00ffcc, #ff00ff);
+            color: #0d0d2b;
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.7);
+        }
+        body.light-mode button:hover, body.light-mode select:hover {
+            background: linear-gradient(45deg, #00ccff, #ff6699);
+            box-shadow: 0 0 20px rgba(0, 0, 255, 0.5);
+        }
+        #alarmStatus {
+            font-size: 18px;
+            margin-top: 15px;
+            color: #00ffcc;
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.7);
+            min-height: 24px;
+            text-align: center;
+        }
+        body.light-mode #alarmStatus {
+            color: #0d0d2b;
+            text-shadow: none;
+        }
+        .alarm-active #clock, .timer-active #clock {
+            animation: alarmPulse 0.8s infinite;
+        }
+        @keyframes alarmPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        #three-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="three-canvas"></canvas>
+    <div class="container">
+        <div class="clock-container">
+            <div id="clock">00:00:00</div>
+            <div id="date"></div>
+            <div class="controls">
+                <input type="time" id="alarmTime" />
+                <input type="file" id="alarmFile" accept="audio/*" />
+                <input type="number" id="timerMinutes" min="1" placeholder="Minuteur (min)" />
+                <select id="themeSelector" onchange="changeTheme()">
+                    <option value="cyan-magenta">Cyan-Magenta</option>
+                    <option value="red-blue">Rouge-Bleu</option>
+                    <option value="green-yellow">Vert-Jaune</option>
+                </select>
+                <button onclick="setAlarm()">Définir l'alarme</button>
+                <button onclick="clearAlarm()">Effacer l'alarme</button>
+                <button onclick="enableAudio()">Activer l'audio</button>
+                <button onclick="snoozeAlarm()">Snooze (5 min)</button>
+                <button onclick="startTimer()">Démarrer le minuteur</button>
+                <button onclick="toggleLightMode()">Mode Sombre/Clair</button>
+            </div>
+            <div id="alarmStatus"></div>
+            <audio id="alarmSound" src="https://universal-soundbank.com/sounds/11463.mp3" preload="auto"></audio>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Three.js - Fond animé arc-en-ciel 3D (particules)
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three-canvas'), alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        // Particules arc-en-ciel
+        const particleCount = 800;
+        const positions = new Float32Array(particleCount * 3);
+        const colors = new Float32Array(particleCount * 3);
+        for (let i = 0; i < particleCount; i++) {
+            positions[i * 3] = (Math.random() - 0.5) * 200;
+            positions[i * 3 + 1] = (Math.random() - 0.5) * 200;
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 200;
+        }
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        const material = new THREE.PointsMaterial({ size: 2, vertexColors: true });
+        const particles = new THREE.Points(geometry, material);
+        scene.add(particles);
+
+        camera.position.z = 100;
+
+        // Animation des couleurs arc-en-ciel
+        let hue = 0;
+        function animateParticles() {
+            hue += 0.005;
+            if (hue > 1) hue -= 1;
+            const newColors = new Float32Array(particleCount * 3);
+            for (let i = 0; i < particleCount; i++) {
+                const color = new THREE.Color().setHSL((hue + i / particleCount) % 1, 1, 0.5);
+                newColors[i * 3] = color.r;
+                newColors[i * 3 + 1] = color.g;
+                newColors[i * 3 + 2] = color.b;
+            }
+            geometry.setAttribute('color', new THREE.BufferAttribute(newColors, 3));
+            particles.rotation.y += 0.002;
+            renderer.render(scene, camera);
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // Redimensionnement de la fenêtre
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Logique de l'horloge
+        let alarmTime = null;
+        let alarmSet = false;
+        let timerEnd = null;
+        const alarmSound = document.getElementById('alarmSound');
+        let audioEnabled = false;
+
+        // Charge un fichier audio personnalisé
+        document.getElementById('alarmFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                alarmSound.src = URL.createObjectURL(file);
+                document.getElementById('alarmStatus').textContent = "Son d'alarme personnalisé chargé !";
+            } else {
+                alarmSound.src = "https://universal-soundbank.com/sounds/11463.mp3";
+                document.getElementById('alarmStatus').textContent = "Son par défaut rétabli.";
+            }
+        });
+
+        // Active l'audio après une interaction utilisateur
+        function enableAudio() {
+            const unlockAudio = new Audio();
+            unlockAudio.play().catch(() => {});
+            alarmSound.play().then(() => {
+                audioEnabled = true;
+                alarmSound.pause();
+                alarmSound.currentTime = 0;
+                document.getElementById('alarmStatus').textContent = "Audio activé avec succès !";
+            }).catch(err => {
+                console.error("Erreur lors de l'activation de l'audio :", err);
+                document.getElementById('alarmStatus').textContent = "Erreur : Impossible d'activer l'audio. Essayez à nouveau.";
+            });
+        }
+
+        // Change le thème de l'horloge
+        function changeTheme() {
+            const theme = document.getElementById('themeSelector').value;
+            const clock = document.getElementById('clock');
+            if (theme === 'red-blue') {
+                clock.style.background = 'linear-gradient(90deg, #ff0000, #0000ff)';
+            } else if (theme === 'green-yellow') {
+                clock.style.background = 'linear-gradient(90deg, #00ff00, #ffff00)';
+            } else {
+                clock.style.background = 'linear-gradient(90deg, #00ffcc, #ff00ff)';
+            }
+        }
+
+        // Bascule entre mode sombre et clair
+        function toggleLightMode() {
+            document.body.classList.toggle('light-mode');
+            const isLightMode = document.body.classList.contains('light-mode');
+            localStorage.setItem('lightMode', isLightMode);
+        }
+
+        // Met à jour l'horloge digitale
+        function updateClock() {
+            try {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+
+                const clockElement = document.getElementById('clock');
+                const dateElement = document.getElementById('date');
+                if (!clockElement) {
+                    throw new Error("Élément de l'horloge introuvable.");
+                }
+                clockElement.textContent = `${hours}:${minutes}:${seconds}`;
+                if (dateElement) {
+                    dateElement.textContent = now.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                }
+
+                // Vérifie l'alarme
+                if (alarmSet && alarmTime) {
+                    const currentTime = `${hours}:${minutes}`;
+                    if (currentTime === alarmTime) {
+                        document.getElementById('alarmStatus').textContent = "Alarme en cours !";
+                        document.body.classList.add('alarm-active');
+                        if (audioEnabled && alarmSound.src) {
+                            alarmSound.loop = true;
+                            alarmSound.play().catch(err => {
+                                console.error("Erreur lors de la lecture de l'audio :", err);
+                                document.getElementById('alarmStatus').textContent = "Erreur : Impossible de jouer l'audio.";
+                            });
+                        } else {
+                            document.getElementById('alarmStatus').textContent = "Alarme ! (Activez l'audio pour entendre le son)";
+                        }
+                    }
+                }
+
+                // Vérifie le minuteur
+                if (timerEnd) {
+                    const timeLeft = timerEnd - now;
+                    if (timeLeft <= 0) {
+                        document.getElementById('alarmStatus').textContent = "Minuteur terminé !";
+                        document.body.classList.add('timer-active');
+                        if (audioEnabled && alarmSound.src) {
+                            alarmSound.loop = false;
+                            alarmSound.play().catch(err => {
+                                console.error("Erreur lors de la lecture de l'audio :", err);
+                                document.getElementById('alarmStatus').textContent = "Erreur : Impossible de jouer l'audio.";
+                            });
+                        }
+                        timerEnd = null;
+                    } else {
+                        const minutesLeft = Math.floor(timeLeft / 60000);
+                        const secondsLeft = Math.floor((timeLeft % 60000) / 1000);
+                        document.getElementById('alarmStatus').textContent = `Minuteur : ${minutesLeft}:${String(secondsLeft).padStart(2, '0')} restant`;
+                    }
+                }
+            } catch (error) {
+                console.error("Erreur lors de la mise à jour de l'horloge :", error);
+                document.getElementById('alarmStatus').textContent = "Erreur : Horloge non fonctionnelle.";
+            }
+        }
+
+        // Définit l'alarme
+        function setAlarm() {
+            const alarmInput = document.getElementById('alarmTime').value;
+            if (alarmInput) {
+                alarmTime = alarmInput;
+                alarmSet = true;
+                localStorage.setItem('alarmTime', alarmTime);
+                document.getElementById('alarmStatus').textContent = `Alarme définie pour ${alarmTime}`;
+            } else {
+                document.getElementById('alarmStatus').textContent = "Veuillez sélectionner une heure.";
+            }
+        }
+
+        // Efface l'alarme
+        function clearAlarm() {
+            alarmSet = false;
+            alarmTime = null;
+            localStorage.removeItem('alarmTime');
+            alarmSound.pause();
+            alarmSound.currentTime = 0;
+            alarmSound.loop = false;
+            document.getElementById('alarmStatus').textContent = "Alarme désactivée.";
+            document.body.classList.remove('alarm-active');
+        }
+
+        // Reporte l'alarme de 5 minutes
+        function snoozeAlarm() {
+            if (alarmTime) {
+                const [hours, minutes] = alarmTime.split(':').map(Number);
+                const snoozeTime = new Date();
+                snoozeTime.setHours(hours);
+                snoozeTime.setMinutes(minutes + 5);
+                alarmTime = `${String(snoozeTime.getHours()).padStart(2, '0')}:${String(snoozeTime.getMinutes()).padStart(2, '0')}`;
+                alarmSet = true;
+                localStorage.setItem('alarmTime', alarmTime);
+                document.getElementById('alarmStatus').textContent = `Alarme reportée à ${alarmTime}`;
+                alarmSound.pause();
+                alarmSound.currentTime = 0;
+                document.body.classList.remove('alarm-active');
+            }
+        }
+
+        // Démarre le minuteur
+        function startTimer() {
+            const minutes = parseInt(document.getElementById('timerMinutes').value);
+            if (minutes > 0) {
+                timerEnd = new Date(Date.now() + minutes * 60 * 1000);
+                document.getElementById('alarmStatus').textContent = `Minuteur pour ${minutes} min démarré !`;
+            } else {
+                document.getElementById('alarmStatus').textContent = "Veuillez entrer une durée valide.";
+            }
+        }
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedAlarmTime = localStorage.getItem('alarmTime');
+            if (savedAlarmTime) {
+                alarmTime = savedAlarmTime;
+                alarmSet = true;
+                document.getElementById('alarmStatus').textContent = `Alarme définie pour ${alarmTime}`;
+            }
+            const isLightMode = localStorage.getItem('lightMode') === 'true';
+            if (isLightMode) {
+                document.body.classList.add('light-mode');
+            }
+            updateClock();
+            setInterval(updateClock, 1000);
+        });
+    </script>
+</body>
+</html>
