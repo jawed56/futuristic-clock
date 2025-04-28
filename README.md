@@ -32,7 +32,7 @@ Une horloge digitale immersive avec un design néon et un fond animé arc-en-cie
    git clone https://github.com/[jawed56]/[futuristic-clock].git
 
 Ouvrez index.html dans un navigateur :
-Double-cliquez sur le fichier, ou
+Double-cliquez sur le fichier, https://github.com/jawed56/futuristic-clock
 
 Utilisez un serveur local :
 bash
