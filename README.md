@@ -1,4 +1,4 @@
-# futuristic-clock
+# horloge-digitale
 # Horloge Digitale Futuriste
 
 Une horloge digitale immersive avec un design néon et un fond animé arc-en-ciel 3D, développée avec HTML, CSS, JavaScript et Three.js. Elle combine des fonctionnalités pratiques (alarme, minuteur, affichage de la date) et une personnalisation visuelle (thèmes, mode sombre/clair).
@@ -29,11 +29,11 @@ Une horloge digitale immersive avec un design néon et un fond animé arc-en-cie
 
 1. Clonez ou téléchargez le dépôt :
    ```bash
-   git clone https://github.com/[jawed56]/[futuristic-clock].git
-   git clone https://github.com/jawed56/futuristic-clock.git
+   git clone https://github.com/[jawed56]/[horloge-digitale].git
+   git clone https://github.com/jawed56/horloge-digitale.git
 
 Ouvrez index.html dans un navigateur :
-Double-cliquez sur le fichier, https://jawed56.github.io/futuristic-clock
+Double-cliquez sur le fichier, https://jawed56.github.io/horloge-digitale
 
 Utilisez un serveur local :
 bash
@@ -88,10 +88,10 @@ git push -u origin main
 Activez GitHub Pages dans Settings > Pages :
 Branche : main, dossier : / (root).
 
-Accédez à : https://[jawed56].github.io/[futuristic-clock]/.
+Accédez à : https://[jawed56].github.io/[horloge-digitale]/.
 
 Démo
-https://[jawed56].github.io/[futuristic-clock]/ (Mettez à jour après déploiement)
+https://[jawed56].github.io/[horloge-digitale]/ (Mettez à jour après déploiement)
 Dépannage
 Fond 3D absent/lent :
 Vérifiez le CDN Three.js.
@@ -118,5 +118,5 @@ Licence
 MIT License. Voir LICENSE pour plus de détails.
 Donnez une étoile  si vous aimez cette horloge futuriste !
 
-"# futuristic-clock" 
+"# horloge-digitale" 
 
